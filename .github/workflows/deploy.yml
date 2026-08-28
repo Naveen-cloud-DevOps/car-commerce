@@ -1,4 +1,3 @@
-```yaml
 name: Deploy Car Commerce to EC2
 
 on:
@@ -152,4 +151,4 @@ jobs:
           echo "====================================="
           echo "Car Commerce Deployment Completed"
           echo "====================================="
-```
+
