@@ -15,7 +15,7 @@ jobs:
 
 deploy:
 
-```
+
 name: Deploy to EC2 using OIDC + SSM
 
 runs-on: ubuntu-latest
