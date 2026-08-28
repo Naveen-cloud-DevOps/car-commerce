@@ -1,0 +1,161 @@
+name: Deploy Car Commerce to EC2
+
+on:
+push:
+branches:
+- main
+
+workflow_dispatch:
+
+permissions:
+id-token: write
+contents: read
+
+jobs:
+
+deploy:
+
+```
+name: Deploy to EC2 using OIDC + SSM
+
+runs-on: ubuntu-latest
+
+steps:
+
+  # ==========================================
+  # Checkout Code
+  # ==========================================
+
+  - name: Checkout Code
+    uses: actions/checkout@v4
+
+
+  # ==========================================
+  # AWS OIDC Authentication
+  # ==========================================
+
+  - name: Configure AWS Credentials
+    uses: aws-actions/configure-aws-credentials@v4
+    with:
+      role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+      aws-region: ${{ secrets.AWS_REGION }}
+
+
+  # ==========================================
+  # Verify AWS Authentication
+  # ==========================================
+
+  - name: Verify AWS Identity
+    run: |
+      aws sts get-caller-identity
+
+
+  # ==========================================
+  # Validate Application
+  # ==========================================
+
+  - name: Validate Application
+    run: |
+
+      echo "Checking application files..."
+
+      test -f index.html
+      test -f style.css
+      test -f app.js
+      test -d images
+
+      echo "Application validation successful."
+
+
+  # ==========================================
+  # Create Deployment Package
+  # ==========================================
+
+  - name: Create Deployment Package
+    run: |
+
+      tar -czf car-commerce.tar.gz \
+        index.html \
+        style.css \
+        app.js \
+        images
+
+      ls -lh car-commerce.tar.gz
+
+
+  # ==========================================
+  # Encode Package
+  # ==========================================
+
+  - name: Encode Package
+    run: |
+
+      base64 -w 0 car-commerce.tar.gz > package.b64
+
+      echo "Package encoded successfully."
+
+
+  # ==========================================
+  # Deploy using AWS SSM
+  # ==========================================
+
+  - name: Deploy to EC2
+    shell: bash
+    run: |
+
+      PACKAGE=$(cat package.b64)
+
+      echo "Deploying to EC2..."
+
+      COMMAND_ID=$(aws ssm send-command \
+        --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
+        --document-name "AWS-RunShellScript" \
+        --comment "Deploy Car Commerce" \
+        --parameters commands="[
+          \"echo '$PACKAGE' | base64 -d > /tmp/car-commerce.tar.gz\",
+          \"sudo mkdir -p /var/www/car-commerce\",
+          \"sudo rm -rf /var/www/car-commerce/*\",
+          \"sudo tar -xzf /tmp/car-commerce.tar.gz -C /var/www/car-commerce\",
+          \"sudo rm -rf /var/www/html/*\",
+          \"sudo cp -r /var/www/car-commerce/* /var/www/html/\",
+          \"sudo chown -R www-data:www-data /var/www/html\",
+          \"sudo chmod -R 755 /var/www/html\",
+          \"sudo nginx -t\",
+          \"sudo systemctl reload nginx\",
+          \"rm -f /tmp/car-commerce.tar.gz\"
+        ]" \
+        --query "Command.CommandId" \
+        --output text)
+
+      echo "SSM Command ID: $COMMAND_ID"
+
+      echo "Waiting for EC2 deployment..."
+
+      aws ssm wait command-executed \
+        --command-id "$COMMAND_ID" \
+        --instance-id "${{ secrets.EC2_INSTANCE_ID }}"
+
+      echo "Deployment successful!"
+
+
+  # ==========================================
+  # Verify Deployment
+  # ==========================================
+
+  - name: Verify EC2 Deployment
+    run: |
+
+      aws ssm send-command \
+        --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
+        --document-name "AWS-RunShellScript" \
+        --parameters commands='[
+          "echo Website files:",
+          "ls -lah /var/www/html",
+          "echo Nginx status:",
+          "sudo systemctl is-active nginx"
+        ]'
+
+      echo "====================================="
+      echo "Car Commerce Deployment Completed"
+      echo "====================================="
+```
