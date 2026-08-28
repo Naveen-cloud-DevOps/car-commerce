@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+```
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<meta name="description"
+      content="AutoDrive - Premium Cars E-Commerce Website">
+
+<title>AutoDrive | Premium Cars</title>
+
+<!-- CSS -->
+<link rel="stylesheet" href="style.css">
+
+<!-- Font Awesome -->
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+>
+```
+
+</head>
+
+<body>
+
+```
+<!-- =====================================================
+     HEADER
+====================================================== -->
+
+<header class="header">
+
+    <div class="logo">
+        <i class="fa-solid fa-car"></i>
+        <span>AutoDrive</span>
+    </div>
+
+
+    <nav class="navbar">
+
+        <a href="#home">Home</a>
+
+        <a href="#cars">Cars</a>
+
+        <a href="#about">About</a>
+
+        <a href="#contact">Contact</a>
+
+    </nav>
+
+
+    <div class="header-actions">
+
+        <!-- Wishlist -->
+
+        <button
+            class="icon-btn"
+            id="wishlistBtn"
+            title="Wishlist"
+        >
+
+            <i class="fa-regular fa-heart"></i>
+
+            <span id="wishlistCount">
+                0
+            </span>
+
+        </button>
+
+
+        <!-- Cart -->
+
+        <button
+            class="icon-btn"
+            id="cartBtn"
+            title="Shopping Cart"
+        >
+
+            <i class="fa-solid fa-cart-shopping"></i>
+
+            <span id="cartCount">
+                0
+            </span>
+
+        </button>
+
+    </div>
+
+</header>
+
+
+
+<!-- =====================================================
+     HERO SECTION
+====================================================== -->
+
+<section
+    class="hero"
+    id="home"
+>
+
+    <div class="hero-content">
+
+        <p class="hero-small">
+            WELCOME TO AUTODRIVE
+        </p>
+
+
+        <h1>
+            Find Your
+            <span>Dream Car</span>
+        </h1>
+
+
+        <p>
+            Discover premium cars, compare prices,
+            and find the perfect vehicle for your journey.
+        </p>
+
+
+        <a
+            href="#cars"
+            class="hero-btn"
+        >
+
+            Explore Cars
+
+            <i class="fa-solid fa-arrow-right"></i>
+
+        </a>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     SEARCH SECTION
+====================================================== -->
+
+<section class="search-section">
+
+    <div class="search-box">
+
+        <i class="fa-solid fa-magnifying-glass"></i>
+
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search cars..."
+            autocomplete="off"
+        >
+
+    </div>
+
+
+    <select id="categoryFilter">
+
+        <option value="all">
+            All Cars
+        </option>
+
+        <option value="sedan">
+            Sedan
+        </option>
+
+        <option value="suv">
+            SUV
+        </option>
+
+        <option value="sports">
+            Sports
+        </option>
+
+        <option value="electric">
+            Electric
+        </option>
+
+    </select>
+
+</section>
+
+
+
+<!-- =====================================================
+     FEATURED CARS
+====================================================== -->
+
+<section
+    class="cars-section"
+    id="cars"
+>
+
+    <div class="section-heading">
+
+        <div>
+
+            <p>
+                OUR COLLECTION
+            </p>
+
+            <h2>
+                Featured Cars
+            </h2>
+
+        </div>
+
+
+        <span id="resultCount">
+            6 Cars
+        </span>
+
+    </div>
+
+
+    <!-- JavaScript will insert car cards here -->
+
+    <div
+        class="cars-grid"
+        id="carsGrid"
+    >
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     WHY CHOOSE US
+====================================================== -->
+
+<section class="features">
+
+    <div class="section-heading center">
+
+        <p>
+            WHY AUTODRIVE
+        </p>
+
+        <h2>
+            Everything You Need
+        </h2>
+
+    </div>
+
+
+    <div class="feature-grid">
+
+
+        <!-- Feature 1 -->
+
+        <div class="feature-card">
+
+            <i class="fa-solid fa-car"></i>
+
+            <h3>
+                Premium Cars
+            </h3>
+
+            <p>
+                Explore carefully selected premium
+                vehicles from trusted manufacturers.
+            </p>
+
+        </div>
+
+
+
+        <!-- Feature 2 -->
+
+        <div class="feature-card">
+
+            <i class="fa-solid fa-shield-halved"></i>
+
+            <h3>
+                Safe & Trusted
+            </h3>
+
+            <p>
+                Transparent pricing and a secure
+                car buying experience.
+            </p>
+
+        </div>
+
+
+
+        <!-- Feature 3 -->
+
+        <div class="feature-card">
+
+            <i class="fa-solid fa-headset"></i>
+
+            <h3>
+                24/7 Support
+            </h3>
+
+            <p>
+                Our support team is available
+                whenever you need assistance.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     ABOUT SECTION
+====================================================== -->
+
+<section
+    class="about"
+    id="about"
+>
+
+
+    <div class="about-image">
+
+        <img
+            src="images/car1.jpg"
+            alt="Premium BMW car"
+        >
+
+    </div>
+
+
+    <div class="about-content">
+
+        <p>
+            ABOUT AUTODRIVE
+        </p>
+
+
+        <h2>
+            Your Journey Starts
+            With The Right Car
+        </h2>
+
+
+        <p>
+            AutoDrive makes it easy to discover
+            premium vehicles. Browse our collection,
+            compare cars, and choose the vehicle
+            that matches your lifestyle.
+        </p>
+
+
+        <button
+            class="primary-btn"
+            type="button"
+        >
+
+            Learn More
+
+            <i class="fa-solid fa-arrow-right"></i>
+
+        </button>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     CONTACT SECTION
+====================================================== -->
+
+<section
+    class="contact"
+    id="contact"
+>
+
+    <div class="contact-content">
+
+        <p>
+            GET IN TOUCH
+        </p>
+
+
+        <h2>
+            Ready To Find Your Car?
+        </h2>
+
+
+        <p>
+            Talk to our team today and let us
+            help you find your perfect vehicle.
+        </p>
+
+
+        <button
+            class="primary-btn"
+            type="button"
+        >
+
+            Contact Us
+
+            <i class="fa-solid fa-phone"></i>
+
+        </button>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     CART OVERLAY
+====================================================== -->
+
+<div
+    class="overlay"
+    id="overlay"
+></div>
+
+
+
+<!-- =====================================================
+     SHOPPING CART
+====================================================== -->
+
+<aside
+    class="cart-sidebar"
+    id="cartSidebar"
+>
+
+
+    <!-- Cart Header -->
+
+    <div class="cart-header">
+
+        <h2>
+            Shopping Cart
+        </h2>
+
+
+        <button
+            id="closeCart"
+            title="Close Cart"
+        >
+
+            <i class="fa-solid fa-xmark"></i>
+
+        </button>
+
+    </div>
+
+
+
+    <!-- Cart Products -->
+
+    <div
+        class="cart-items"
+        id="cartItems"
+    >
+
+        <p class="empty-cart">
+            Your cart is empty.
+        </p>
+
+    </div>
+
+
+
+    <!-- Cart Footer -->
+
+    <div class="cart-footer">
+
+
+        <div class="total">
+
+            <span>
+                Total
+            </span>
+
+
+            <strong id="cartTotal">
+                ₹0
+            </strong>
+
+        </div>
+
+
+        <button
+            class="checkout-btn"
+            id="checkoutBtn"
+            type="button"
+        >
+
+            Proceed to Checkout
+
+            <i class="fa-solid fa-arrow-right"></i>
+
+        </button>
+
+    </div>
+
+</aside>
+
+
+
+<!-- =====================================================
+     FOOTER
+====================================================== -->
+
+<footer>
+
+    <div class="footer-content">
+
+
+        <!-- Company -->
+
+        <div>
+
+            <div class="logo">
+
+                <i class="fa-solid fa-car"></i>
+
+                <span>
+                    AutoDrive
+                </span>
+
+            </div>
+
+
+            <p>
+                Premium cars for every journey.
+            </p>
+
+        </div>
+
+
+
+        <!-- Quick Links -->
+
+        <div>
+
+            <h3>
+                Quick Links
+            </h3>
+
+
+            <a href="#home">
+                Home
+            </a>
+
+            <a href="#cars">
+                Cars
+            </a>
+
+            <a href="#about">
+                About
+            </a>
+
+            <a href="#contact">
+                Contact
+            </a>
+
+        </div>
+
+
+
+        <!-- Contact -->
+
+        <div>
+
+            <h3>
+                Contact
+            </h3>
+
+
+            <p>
+                Hyderabad, India
+            </p>
+
+
+            <p>
+                +91 98765 43210
+            </p>
+
+
+            <p>
+                sales@autodrive.com
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="copyright">
+
+        © 2026 AutoDrive.
+        All Rights Reserved.
+
+    </div>
+
+</footer>
+
+
+
+<!-- =====================================================
+     JAVASCRIPT
+====================================================== -->
+
+<script src="app.js"></script>
+```
+
+</body>
+
+</html>
