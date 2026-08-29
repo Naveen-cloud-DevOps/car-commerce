@@ -35,6 +35,9 @@ echo "Step 6: Setting permissions..."
 sudo chown -R nginx:nginx "$APP_DIR"
 sudo chmod -R 755 "$APP_DIR"
 
+echo "Step 6b: Configuring Nginx to serve from $APP_DIR..."
+sudo sed -i "s#root.*html;#root $APP_DIR;#" /etc/nginx/nginx.conf
+
 echo "Step 7: Testing Nginx..."
 sudo nginx -t
 
