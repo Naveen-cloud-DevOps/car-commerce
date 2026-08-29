@@ -7,125 +7,32 @@ on:
 
   workflow_dispatch:
 
-# Required for GitHub OIDC
 permissions:
   id-token: write
   contents: read
 
-env:
-  AWS_REGION: ${{ secrets.AWS_REGION }}
-  EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
-  S3_BUCKET: ${{ secrets.S3_BUCKET }}
-
 jobs:
-
-  deploy:
-
-    name: Deploy to EC2 using OIDC + SSM
-
+  test-aws:
     runs-on: ubuntu-latest
 
     steps:
 
-      # ==========================================
-      # 1. Checkout Code
-      # ==========================================
-
-      - name: Checkout Code
+      - name: Checkout
         uses: actions/checkout@v4
 
-
-      # ==========================================
-      # 2. Configure AWS using OIDC
-      # ==========================================
+      - name: Check GitHub Context
+        run: |
+          echo "Repository: $GITHUB_REPOSITORY"
+          echo "Ref: $GITHUB_REF"
+          echo "Event: $GITHUB_EVENT_NAME"
+          echo "OIDC permission is enabled"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-to-assume: arn:aws:iam::635379701053:role/GitHubActionsEC2Role
           aws-region: ${{ secrets.AWS_REGION }}
-
-
-      # ==========================================
-      # 3. Verify AWS Authentication
-      # ==========================================
 
       - name: Verify AWS Identity
         run: |
-          echo "AWS Region: $AWS_REGION"
-
           aws sts get-caller-identity
-
-
-      # ==========================================
-      # 4. Create Deployment Package
-      # ==========================================
-
-      - name: Create Deployment Package
-        run: |
-
-          echo "Creating Car Commerce deployment package..."
-
-          zip -r car-commerce.zip \
-            index.html \
-            style.css \
-            app.js \
-            images/ \
-            scripts/
-
-          echo "Deployment package created."
-
-          ls -lh car-commerce.zip
-
-
-      # ==========================================
-      # 5. Upload Package to S3
-      # ==========================================
-
-      - name: Upload Package to S3
-        run: |
-
-          echo "Uploading package to S3..."
-
-          aws s3 cp \
-            car-commerce.zip \
-            s3://$S3_BUCKET/car-commerce.zip
-
-          echo "Upload completed."
-
-
-      # ==========================================
-      # 6. Deploy Application using SSM
-      # ==========================================
-
-      - name: Deploy Application to EC2
-        run: |
-
-          echo "Sending deployment command to EC2..."
-
-          COMMAND_ID=$(aws ssm send-command \
-            --instance-ids "$EC2_INSTANCE_ID" \
-            --document-name "AWS-RunShellScript" \
-            --comment "Deploy Car Commerce Application" \
-            --parameters 'commands=[
-              "sudo rm -rf /tmp/car-commerce",
-              "sudo mkdir -p /tmp/car-commerce",
-              "aws s3 cp s3://'"$S3_BUCKET"'/car-commerce.zip /tmp/car-commerce.zip",
-              "sudo unzip -o /tmp/car-commerce.zip -d /tmp/car-commerce",
-              "sudo chmod +x /tmp/car-commerce/scripts/script.sh",
-              "sudo /tmp/car-commerce/scripts/script.sh"
-            ]' \
-            --query "Command.CommandId" \
-            --output text)
-
-          echo "SSM Command ID: $COMMAND_ID"
-
-          echo "Waiting for EC2 deployment..."
-
-          aws ssm wait command-executed \
-            --command-id "$COMMAND_ID" \
-            --instance-id "$EC2_INSTANCE_ID"
-
-          echo "=========================================="
-          echo "Car Commerce Deployment Successful"
-          echo "=========================================="
