@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-
   workflow_dispatch:
 
 # Required for GitHub OIDC
@@ -18,91 +17,89 @@ env:
   S3_BUCKET: ${{ secrets.S3_BUCKET }}
 
 jobs:
-
   deploy:
-
     name: Deploy to EC2 using OIDC + SSM
-
     runs-on: ubuntu-latest
-
     steps:
-
       # ==========================================
       # 1. Checkout Code
       # ==========================================
-
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      # ==========================================
+      # 2. DEBUG: Decode the actual OIDC token claims
+      #    (Temporary step — remove once issue is fixed)
+      # ==========================================
+      - name: Debug OIDC Token Claims
+        run: |
+          echo "Requesting OIDC token from GitHub..."
+          TOKEN=$(curl -sLS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r '.value')
+
+          if [ -z "$TOKEN" ] || [ "$TOKEN" == "null" ]; then
+            echo "ERROR: Failed to retrieve OIDC token. Check id-token: write permission."
+            exit 1
+          fi
+
+          echo "Decoded token claims:"
+          echo "$TOKEN" | cut -d '.' -f2 | base64 -d 2>/dev/null | jq .
+
+          echo ""
+          echo "Role ARN secret length check (should be > 0):"
+          echo -n "$AWS_ROLE_ARN" | wc -c
+        env:
+          AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
 
       # ==========================================
-      # 2. Configure AWS using OIDC
+      # 3. Configure AWS using OIDC
       # ==========================================
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-
       # ==========================================
-      # 3. Verify AWS Authentication
+      # 4. Verify AWS Authentication
       # ==========================================
-
       - name: Verify AWS Identity
         run: |
           echo "AWS Region: $AWS_REGION"
-
           aws sts get-caller-identity
 
-
       # ==========================================
-      # 4. Create Deployment Package
+      # 5. Create Deployment Package
       # ==========================================
-
       - name: Create Deployment Package
         run: |
-
           echo "Creating Car Commerce deployment package..."
-
           zip -r car-commerce.zip \
             index.html \
             style.css \
             app.js \
             images/ \
             scripts/
-
           echo "Deployment package created."
-
           ls -lh car-commerce.zip
 
-
       # ==========================================
-      # 5. Upload Package to S3
+      # 6. Upload Package to S3
       # ==========================================
-
       - name: Upload Package to S3
         run: |
-
           echo "Uploading package to S3..."
-
           aws s3 cp \
             car-commerce.zip \
             s3://$S3_BUCKET/car-commerce.zip
-
           echo "Upload completed."
 
-
       # ==========================================
-      # 6. Deploy Application using SSM
+      # 7. Deploy Application using SSM
       # ==========================================
-
       - name: Deploy Application to EC2
         run: |
-
           echo "Sending deployment command to EC2..."
-
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$EC2_INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
@@ -117,15 +114,11 @@ jobs:
             ]' \
             --query "Command.CommandId" \
             --output text)
-
           echo "SSM Command ID: $COMMAND_ID"
-
           echo "Waiting for EC2 deployment..."
-
           aws ssm wait command-executed \
             --command-id "$COMMAND_ID" \
             --instance-id "$EC2_INSTANCE_ID"
-
           echo "=========================================="
           echo "Car Commerce Deployment Successful"
           echo "=========================================="
