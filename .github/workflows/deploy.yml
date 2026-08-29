@@ -7,7 +7,6 @@ on:
 
   workflow_dispatch:
 
-# Required for GitHub OIDC
 permissions:
   id-token: write
   contents: read
@@ -28,7 +27,7 @@ jobs:
     steps:
 
       # ==========================================
-      # 1. Checkout Code
+      # 1. Checkout
       # ==========================================
 
       - name: Checkout Code
@@ -36,11 +35,11 @@ jobs:
 
 
       # ==========================================
-      # 2. Configure AWS using OIDC
+      # 2. Configure AWS OIDC
       # ==========================================
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
@@ -53,7 +52,6 @@ jobs:
       - name: Verify AWS Identity
         run: |
           echo "AWS Region: $AWS_REGION"
-
           aws sts get-caller-identity
 
 
@@ -63,7 +61,6 @@ jobs:
 
       - name: Create Deployment Package
         run: |
-
           echo "Creating Car Commerce deployment package..."
 
           zip -r car-commerce.zip \
@@ -84,7 +81,6 @@ jobs:
 
       - name: Upload Package to S3
         run: |
-
           echo "Uploading package to S3..."
 
           aws s3 cp \
@@ -95,7 +91,7 @@ jobs:
 
 
       # ==========================================
-      # 6. Deploy Application using SSM
+      # 6. Deploy using SSM
       # ==========================================
 
       - name: Deploy Application to EC2
@@ -107,14 +103,14 @@ jobs:
             --instance-ids "$EC2_INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
             --comment "Deploy Car Commerce Application" \
-            --parameters 'commands=[
-              "sudo rm -rf /tmp/car-commerce",
-              "sudo mkdir -p /tmp/car-commerce",
-              "aws s3 cp s3://'"$S3_BUCKET"'/car-commerce.zip /tmp/car-commerce.zip",
-              "sudo unzip -o /tmp/car-commerce.zip -d /tmp/car-commerce",
-              "sudo chmod +x /tmp/car-commerce/scripts/script.sh",
-              "sudo /tmp/car-commerce/scripts/script.sh"
-            ]' \
+            --parameters "commands=[
+              \"sudo rm -rf /tmp/car-commerce\",
+              \"sudo mkdir -p /tmp/car-commerce\",
+              \"aws s3 cp s3://$S3_BUCKET/car-commerce.zip /tmp/car-commerce.zip\",
+              \"sudo unzip -o /tmp/car-commerce.zip -d /tmp/car-commerce\",
+              \"sudo chmod +x /tmp/car-commerce/scripts/script.sh\",
+              \"sudo /tmp/car-commerce/scripts/script.sh\"
+            ]" \
             --query "Command.CommandId" \
             --output text)
 
